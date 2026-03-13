@@ -28,7 +28,12 @@ export default function VisaCheck() {
     setSearchResult(null);
 
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        setSearchResult("সিস্টেম ত্রুটি: API Key পাওয়া যায়নি। দয়া করে Vercel-এ GEMINI_API_KEY সেট করে আবার ডিপ্লয় করুন।");
+        return;
+      }
+      const ai = new GoogleGenAI({ apiKey });
       
       const prompt = `Provide 100% accurate, up-to-date information in Bengali about the "${visaType}" visa for "${country}" for a Bangladeshi citizen. Use Google Search to find the latest official rules. Include:
       1. Visa Type Description
@@ -40,19 +45,21 @@ export default function VisaCheck() {
       Format the response nicely in Markdown.`;
 
       const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
+        model: "gemini-3.1-pro-preview",
         contents: prompt,
         config: {
           systemInstruction: "You are a highly accurate visa and immigration expert for Bangladeshi citizens. You must provide 100% accurate, up-to-date, and safe information. Always answer in Bengali.",
           tools: [{ googleSearch: {} }],
-          temperature: 0.2,
+          temperature: 0,
+          topK: 1,
+          topP: 0.1,
         },
       });
 
       setSearchResult(response.text || "দুঃখিত, কোনো তথ্য পাওয়া যায়নি।");
-    } catch (error: any) {
+    } catch (error) {
       console.error("Visa check error:", error);
-      setSearchResult(`দুঃখিত, একটি প্রযুক্তিগত সমস্যা হয়েছে: ${error?.message || "Unknown error"}। অনুগ্রহ করে আবার চেষ্টা করুন।`);
+      setSearchResult("দুঃখিত, একটি প্রযুক্তিগত সমস্যা হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।");
     } finally {
       setIsSearching(false);
     }
@@ -84,13 +91,24 @@ export default function VisaCheck() {
 
     setIsVerifying(true);
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        setVerifyResult({
+          isAuthentic: false,
+          documentType: "অজানা",
+          extractedInfo: {},
+          warnings: ["সিস্টেম ত্রুটি: API Key পাওয়া যায়নি। দয়া করে Vercel-এ GEMINI_API_KEY সেট করে আবার ডিপ্লয় করুন।"],
+          confidence: 0,
+        });
+        return;
+      }
+      const ai = new GoogleGenAI({ apiKey });
 
       const base64Data = previewUrl.split(",")[1];
       const mimeType = file.type;
 
       const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
+        model: "gemini-3.1-pro-preview",
         contents: {
           parts: [
             {
@@ -107,7 +125,9 @@ export default function VisaCheck() {
         config: {
           responseMimeType: "application/json",
           tools: [{ googleSearch: {} }],
-          temperature: 0.1,
+          temperature: 0,
+          topK: 1,
+          topP: 0.1,
         },
       });
 
