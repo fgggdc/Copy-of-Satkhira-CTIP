@@ -40,21 +40,19 @@ export default function VisaCheck() {
       Format the response nicely in Markdown.`;
 
       const response = await ai.models.generateContent({
-        model: "gemini-3.1-pro-preview",
+        model: "gemini-3-flash-preview",
         contents: prompt,
         config: {
           systemInstruction: "You are a highly accurate visa and immigration expert for Bangladeshi citizens. You must provide 100% accurate, up-to-date, and safe information. Always answer in Bengali.",
           tools: [{ googleSearch: {} }],
-          temperature: 0,
-          topK: 1,
-          topP: 0.1,
+          temperature: 0.2,
         },
       });
 
       setSearchResult(response.text || "দুঃখিত, কোনো তথ্য পাওয়া যায়নি।");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Visa check error:", error);
-      setSearchResult("দুঃখিত, একটি প্রযুক্তিগত সমস্যা হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।");
+      setSearchResult(`দুঃখিত, একটি প্রযুক্তিগত সমস্যা হয়েছে: ${error?.message || "Unknown error"}। অনুগ্রহ করে আবার চেষ্টা করুন।`);
     } finally {
       setIsSearching(false);
     }
@@ -92,7 +90,7 @@ export default function VisaCheck() {
       const mimeType = file.type;
 
       const response = await ai.models.generateContent({
-        model: "gemini-3.1-pro-preview",
+        model: "gemini-3-flash-preview",
         contents: {
           parts: [
             {
@@ -109,9 +107,7 @@ export default function VisaCheck() {
         config: {
           responseMimeType: "application/json",
           tools: [{ googleSearch: {} }],
-          temperature: 0,
-          topK: 1,
-          topP: 0.1,
+          temperature: 0.1,
         },
       });
 
