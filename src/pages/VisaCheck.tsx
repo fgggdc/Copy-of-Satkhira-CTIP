@@ -67,13 +67,25 @@ export default function VisaCheck() {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
-    if (selectedFile) processFile(selectedFile);
+    if (selectedFile) {
+      if (selectedFile.size > 5 * 1024 * 1024) {
+        alert("ফাইলের আকার ৫ মেগাবাইটের (5MB) নিচে হতে হবে। দয়া করে ছোট সাইজের ফাইল আপলোড করুন।");
+        return;
+      }
+      processFile(selectedFile);
+    }
   };
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     const droppedFile = e.dataTransfer.files?.[0];
-    if (droppedFile) processFile(droppedFile);
+    if (droppedFile) {
+      if (droppedFile.size > 5 * 1024 * 1024) {
+        alert("ফাইলের আকার ৫ মেগাবাইটের (5MB) নিচে হতে হবে। দয়া করে ছোট সাইজের ফাইল আপলোড করুন।");
+        return;
+      }
+      processFile(droppedFile);
+    }
   };
 
   const processFile = (file: File) => {
@@ -131,7 +143,13 @@ export default function VisaCheck() {
         },
       });
 
-      const jsonStr = response.text?.trim() || "{}";
+      let jsonStr = response.text?.trim() || "{}";
+      
+      // Fallback: Remove markdown code blocks if the AI accidentally includes them
+      if (jsonStr.startsWith("```")) {
+        jsonStr = jsonStr.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "");
+      }
+      
       const parsedResult = JSON.parse(jsonStr);
       setVerifyResult(parsedResult);
     } catch (error) {
