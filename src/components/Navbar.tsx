@@ -25,7 +25,12 @@ export default function Navbar() {
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center">
             <Link to="/" className="flex items-center gap-2">
-              <Globe className="h-8 w-8 text-primary" />
+              <img src="/logo.png" alt="Satkhira CTIP Logo" className="h-10 w-auto object-contain" onError={(e) => {
+                // Fallback to Globe icon if logo.png is not found
+                e.currentTarget.style.display = 'none';
+                e.currentTarget.nextElementSibling?.classList.remove('hidden');
+              }} />
+              <Globe className="h-8 w-8 text-primary hidden" />
               <span className="text-xl font-bold tracking-tight">
                 সাতক্ষীরা সিটিআইপি আ্যাক্টিভিস্ট
               </span>

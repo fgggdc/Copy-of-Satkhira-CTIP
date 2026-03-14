@@ -8,7 +8,12 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="space-y-4">
             <Link to="/" className="flex items-center gap-2">
-              <Globe className="h-8 w-8 text-primary" />
+              <img src="/logo.png" alt="Satkhira CTIP Logo" className="h-10 w-auto object-contain" onError={(e) => {
+                // Fallback to Globe icon if logo.png is not found
+                e.currentTarget.style.display = 'none';
+                e.currentTarget.nextElementSibling?.classList.remove('hidden');
+              }} />
+              <Globe className="h-8 w-8 text-primary hidden" />
               <span className="text-xl font-bold tracking-tight">
                 সাতক্ষীরা সিটিআইপি আ্যাক্টিভিস্ট
               </span>
@@ -27,7 +32,7 @@ export default function Footer() {
                   to="/voice-assistant"
                   className="hover:text-primary transition-colors"
                 >
-                  হেল্প কর্নার
+                  ভয়েস এজেন্ট
                 </Link>
               </li>
               <li>
